@@ -1,1 +1,3 @@
 # chatapp
+
+### `npm start`
