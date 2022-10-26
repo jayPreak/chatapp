@@ -1,16 +1,41 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { Link } from 'react-router-dom'
 import styled from "styled-components"
 import Logo from "../assets/logo.svg"
+import {ToastContainer, toast} from "react-toastify"
 
 function Register() {
 
+  const [values, setValues] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  })
+
     const handleSubmit = (event) => {
         event.preventDefault()
-        alert("form")
+        handleValidation()
+    }
+
+    const handleValidation = () => {
+      const { password, confirmPassword, username, email} = values
+
+      if (password !== confirmPassword) {
+        alert("oop")
+        toast.error("Password and Confirm Password should be same", {
+          position: "bottom-right",
+          autoClose: 8000,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "dark",
+        })
+
+      }
     }
 
     const handleChange = (event) => {
+      setValues({...values,[event.target.name]: event.target.value})
 
     }
   return (
@@ -49,6 +74,7 @@ function Register() {
                 <span>Already have an account ? <Link to="/login">Login</Link> </span>
             </form>
         </FormContainer>
+        <ToastContainer />
     </>
   )
 }
