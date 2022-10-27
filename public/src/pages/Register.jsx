@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom'
 import styled from "styled-components"
 import Logo from "../assets/logo.svg"
 import {ToastContainer, toast} from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import axios from "axios"
+import { registerRoute } from '../utils/APIRoutes'
+
 
 function Register() {
 
@@ -13,25 +17,47 @@ function Register() {
     confirmPassword: "",
   })
 
-    const handleSubmit = (event) => {
+  const toastOptions = {
+    position: "bottom-right",
+    autoClose: 8000,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "dark",
+  }
+
+    const handleSubmit = async (event) => {
         event.preventDefault()
-        handleValidation()
+        if (handleValidation()) {
+          console.log("in validsd", registerRoute)
+          const { password, confirmPassword, username, email} = values
+          const {data} = await axios.post(registerRoute, {
+            username, 
+            email, 
+            password,
+          })
+
+        }
     }
 
     const handleValidation = () => {
       const { password, confirmPassword, username, email} = values
 
       if (password !== confirmPassword) {
-        alert("oop")
-        toast.error("Password and Confirm Password should be same", {
-          position: "bottom-right",
-          autoClose: 8000,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "dark",
-        })
-
+        // alert("oop")
+        toast.error("Password and Confirm Password should be same.", toastOptions)
+        return false
+      } else if (username.length < 3) {
+        toast.error("Username must be longer than 3 charecters.", toastOptions)
+        return false
+      } else if (password.length < 3) {
+        toast.error("Password must be longer than 8 charecters.", toastOptions)
+        return false
+      } else if (email === "") {
+        toast.error("Email is required.", toastOptions)
+        return false
       }
+
+      return true
     }
 
     const handleChange = (event) => {
