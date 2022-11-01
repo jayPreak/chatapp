@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styled from "styled-components"
 import Logo from "../assets/logo.svg"
 import {ToastContainer, toast} from "react-toastify"
@@ -9,6 +9,7 @@ import { registerRoute } from '../utils/APIRoutes'
 
 
 function Register() {
+  const navigate = useNavigate()
 
   const [values, setValues] = useState({
     username: "",
@@ -28,15 +29,22 @@ function Register() {
     const handleSubmit = async (event) => {
         event.preventDefault()
         if (handleValidation()) {
-          console.log("in validsd", registerRoute)
-          const { password, confirmPassword, username, email} = values
+          // console.log("in validsd", registerRoute)
+          const { password,  username, email} = values
           const {data} = await axios.post(registerRoute, {
             username, 
             email, 
             password,
           })
-
+          if(data.status===false){
+            toast.error(data.msg, toastOptions)
+          }
+          if (data.status === true){
+            localStorage.setItem("chat-app-user", JSON.stringify(data.user))
+            navigate("/")
+          }
         }
+        
     }
 
     const handleValidation = () => {
@@ -48,6 +56,9 @@ function Register() {
         return false
       } else if (username.length < 3) {
         toast.error("Username must be longer than 3 charecters.", toastOptions)
+        return false
+      } else if (username.length > 20) {
+        toast.error("Username must be shorter than 20 charecters.", toastOptions)
         return false
       } else if (password.length < 3) {
         toast.error("Password must be longer than 8 charecters.", toastOptions)
