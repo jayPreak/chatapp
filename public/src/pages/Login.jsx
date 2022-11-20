@@ -26,6 +26,12 @@ function Login() {
     theme: "dark",
   }
 
+  useEffect(() => {
+    if(localStorage.getItem('chat-app-user')) {
+      navigate('/')
+    }
+  }, [])
+
     const handleSubmit = async (event) => {
         event.preventDefault()
         if (handleValidation()) {
@@ -54,7 +60,8 @@ function Login() {
         // alert("oop")
         toast.error("Password is required.", toastOptions)
         return false
-      } else if (username.length=== "") {
+      } else if (username === "") {
+        console.log("yep")
         toast.error("Username is required.", toastOptions)
         return false
       } 
