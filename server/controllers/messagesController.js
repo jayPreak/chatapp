@@ -1,84 +1,42 @@
-const User = require("../model/userModel")
-const brcypt = require("bcrypt")
+const messageModel = require("../model/messageModel")
 
-
-module.exports.register = async (req, res, next) => {
-    // console.log(req.body)
+module.exports.addMessage = async (req, res, next) => {
     try {
-        const {username, email, password} = req.body
-
-        const usernameCheck = await User.findOne({username})
-        if (usernameCheck) return res.json({msg: "Username already used", status: false})
-        const emailCheck = await User.findOne({email})
-        if (emailCheck) return res.json({msg: "Email already used", status: false})
-        const hashedPassword = await brcypt.hash(password, 10)
-        const user = await User.create({
-            email,
-            username,
-            password: hashedPassword,
+        const { from, to, message } = req.body
+        const data = await messageModel.create({
+            message: {text:message},
+            users: [from, to],
+            sender:from,
         })
-        delete user.password
-        return res.json({status: true, user})
-
-    } catch(ex) {
+        if (data) return res.json({msg:"Message added successfully"})
+        return res.json({msg: "Failed to add message to database"})
+    } catch(ex){
         next(ex)
     }
-
 }
 
-module.exports.login = async (req, res, next) => {
-    // console.log(req.body)
+module.exports.getAllMessage = async (req, res, next) => {
     try {
-        const {username, password} = req.body
+        const { from, to } = req.body;
 
-        const user = await User.findOne({username})
-        if (!user) 
-            return res.json({msg: "Incorrect Username", status: false})
-        
-        const isPasswordValid = await brcypt.compare(password, user.password)
-        if(!isPasswordValid)
-            return res.json({msg: "Incorrect Password", status: false})
+        const messages = await messageModel.find({
+        users: {
+            $all: [from, to],
+        },
+        }).sort({ updatedAt: 1 });
 
-        delete user.password
-        return res.json({status: true, user})
+        const projectedMessages = messages.map((msg) => {
+        return {
+            fromSelf: msg.sender.toString() === from,
+            message: msg.message.text,
+        };
+        });
+        res.json(projectedMessages);
 
-    } catch(ex) {
-        next(ex)
-    }
 
-}
-
-module.exports.setAvatar = async (req, res, next) => {
-    try {
-        const userId = req.params.id
-        const avatarImage = req.body.image
-        const userData = await User.findByIdAndUpdate(userId, {
-            isAvatarImageSet: true,
-            avatarImage,
-        })
-        return res.json({
-            isSet:userData.isAvatarImageSet, 
-            image:userData.avatarImage,
-        })
-
-    } catch (ex) {
+    } catch(ex){
         next(ex)
     }
 }
 
 
-module.exports.getAllUsers = async (req, res, next) => {
-    try {
-        const users = await User.find({_id: { $ne: req.params.id}}).select([
-            "email",
-            "username",
-            "avatarImage",
-            "_id",
-        ])
-        return res.json(users) 
-    } catch(ex) {
-        next(ex)
-    }
-
-
-}

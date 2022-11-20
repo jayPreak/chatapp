@@ -66,6 +66,7 @@ function Chat() {
           ) : (
             <ChatContainer
               currentChat = {currentChat}
+              currentUser = {currentUser}
             />
           )
         }
