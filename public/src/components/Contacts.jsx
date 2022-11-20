@@ -2,10 +2,10 @@ import React, {useState, useEffect} from 'react'
 import styled from "styled-components"
 import Logo from "../assets/logo.svg"
 
-export default function Contacts({contacts, currentUser}) {
+export default function Contacts({contacts, currentUser, changeChat}) {
     const [currentUserName, setCurrentUserName] = useState(undefined)
     const [currentUserImage, setCurrentUserImage] = useState(undefined)
-    const [currentSelected, setCurrent] = useState(undefined)
+    const [currentSelected, setCurrentSelected] = useState(undefined)
     
     useEffect(() => {
         if(currentUser){
@@ -14,7 +14,10 @@ export default function Contacts({contacts, currentUser}) {
         }
     }, [currentUser])
 
-    const changeCurrentChat = (index,contact) => {}
+    const changeCurrentChat = (index,contact) => {
+        setCurrentSelected(index)
+        changeChat(contact)
+    }
   return <>
   {
     currentUserImage && currentUserName && (
@@ -27,7 +30,11 @@ export default function Contacts({contacts, currentUser}) {
                 {
                     contacts.map((contact, index)=> {
                         return (
-                            <div className={`contact ${index === currentSelected ? "selected" : ""}`} key={index}>
+                            <div 
+                            className={`contact ${index === currentSelected ? "selected" : ""}`} 
+                            key={index}
+                            onClick={()=> changeCurrentChat(index, contact)}
+                            >
                                 <div className="avatar">
                                     <img 
                                     src={`data:image/svg+xml;base64,${contact.avatarImage}`} 
@@ -53,9 +60,9 @@ export default function Contacts({contacts, currentUser}) {
                     />
                 </div>
                 <div className="username">
-                    <h3>
+                    <h2>
                         {currentUserName}
-                    </h3>
+                    </h2>
                 </div>
             </div>
         </Container>
@@ -69,7 +76,7 @@ const Container = styled.div`
 display: grid;
   grid-template-rows: 10% 75% 15%;
   overflow: hidden;
-  background-color: #810000;
+  background-color: #7b1425;
   .brand {
     display: flex;
     align-items: center;
@@ -120,7 +127,7 @@ display: grid;
       }
     }
     .selected {
-      background-color: #9a86f3;
+      background-color: #f4788c;
     }
   }
 
